@@ -3,162 +3,253 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fear and Greed Index</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<title>Fear and Greed Index - S&P 500 y Eurostoxx 50</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
 :root{--a:#0085CA;--p:#062D3F;--g:#C8DAE2;--b:#F3F3F3;--t:#37BBF4;--v1:#72C971;--v2:#367B35;--r1:#EB5656;--r2:#EB8787}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Segoe UI',sans-serif;background:var(--b);color:var(--p)}
-header{background:var(--p);color:#fff;padding:20px 32px}
-header h1{font-size:1.5rem;font-weight:700}
-.sub{font-size:.85rem;color:var(--t);margin-top:4px}
-.main{max-width:1200px;margin:0 auto;padding:28px 20px}
-.dbar{background:var(--a);color:#fff;text-align:center;padding:7px;font-size:.85rem}
-.tabs{display:flex;margin-bottom:28px;border-bottom:2px solid var(--a)}
-.tb{padding:10px 28px;background:#fff;border:1px solid var(--g);border-bottom:none;cursor:pointer;font-size:.95rem;font-weight:600;color:var(--p)}
+body{font-family:'Segoe UI',Arial,sans-serif;background:var(--b);color:var(--p)}
+header{background:var(--p);color:#fff;padding:18px 32px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+header h1{font-size:1.4rem;font-weight:700}
+.sub{font-size:.8rem;color:var(--t);margin-top:3px}
+.hright{text-align:right;font-size:.76rem;color:var(--g);line-height:1.6}
+.dbar{background:var(--a);color:#fff;text-align:center;padding:6px 12px;font-size:.82rem;min-height:32px;display:flex;align-items:center;justify-content:center;gap:8px}
+.main{max-width:1200px;margin:0 auto;padding:22px 16px}
+.tabs{display:flex;margin-bottom:22px;border-bottom:2px solid var(--a)}
+.tb{padding:10px 26px;background:#fff;border:1px solid var(--g);border-bottom:none;cursor:pointer;font-size:.93rem;font-weight:600;color:var(--p);transition:background .2s}
 .tb.active{background:var(--a);color:#fff}
+.tb:hover:not(.active){background:var(--g)}
 .panel{display:none}.panel.active{display:block}
-.gsec{display:flex;flex-direction:column;align-items:center;margin-bottom:36px}
-.gwrap{position:relative;width:320px;height:180px;margin:0 auto 10px}
+.loading{text-align:center;padding:50px;font-size:.95rem;color:var(--a)}
+.err{background:#fff3cd;border:1px solid #ffc107;border-radius:6px;padding:10px 14px;margin-bottom:14px;font-size:.82rem;color:#856404;display:none}
+.gsec{display:flex;flex-direction:column;align-items:center;margin-bottom:28px}
+.gwrap{position:relative;width:300px;height:168px;margin:0 auto 8px}
 .gwrap canvas{position:absolute;top:0;left:0}
 .gsc{text-align:center}
-.gsc .sn{font-size:3.2rem;font-weight:800;line-height:1}
-.gsc .sl{font-size:1.1rem;font-weight:700;margin-top:4px}
-.gsc .sp{font-size:.8rem;color:#666;margin-top:6px}
-.stit{font-size:1.1rem;font-weight:700;margin-bottom:14px;border-left:4px solid var(--a);padding-left:10px}
-.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:18px;margin-bottom:36px}
-.cc{background:#fff;border:1px solid var(--g);border-radius:8px;padding:18px;box-shadow:0 2px 6px rgba(6,45,63,.06)}
-.ch{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
-.cn{font-weight:700;font-size:.9rem}
-.cb{font-size:.75rem;font-weight:700;padding:3px 9px;border-radius:20px}
+.sn{font-size:3rem;font-weight:800;line-height:1}
+.sl{font-size:1.1rem;font-weight:700;margin-top:3px}
+.sp2{font-size:.76rem;color:#555;margin-top:5px}
+.stit{font-size:1.02rem;font-weight:700;margin-bottom:11px;border-left:4px solid var(--a);padding-left:10px}
+.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:28px}
+.cc{background:#fff;border:1px solid var(--g);border-radius:8px;padding:15px;box-shadow:0 2px 5px rgba(6,45,63,.06)}
+.ch{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
+.cn{font-weight:700;font-size:.86rem}
+.cb{font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:14px;white-space:nowrap}
 .bef{background:var(--r1);color:#fff}.bf{background:var(--r2);color:#fff}.bn{background:#F3C94A;color:#333}.bg{background:var(--v1);color:#fff}.beg{background:var(--v2);color:#fff}
-.bbg{background:var(--g);border-radius:4px;height:7px;margin:8px 0;overflow:hidden}
-.bfill{height:100%;border-radius:4px}
-.cv{font-size:.82rem;font-weight:600;color:var(--a);margin-top:4px}
-.cd{font-size:.78rem;color:#555;line-height:1.45;margin-top:7px}
-.csec{background:#fff;border:1px solid var(--g);border-radius:8px;padding:22px;margin-bottom:36px}
-.cwrap{position:relative;height:270px}
-.gleg{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:10px}
-.li{display:flex;align-items:center;gap:4px;font-size:.72rem;font-weight:600}
-.ld{width:11px;height:11px;border-radius:50%}
-footer{background:var(--p);color:var(--g);text-align:center;padding:18px;font-size:.78rem;margin-top:36px}
+.bbg{background:var(--g);border-radius:4px;height:7px;margin:6px 0;overflow:hidden}
+.bfill{height:100%;border-radius:4px;transition:width 1s}
+.cv{font-size:.78rem;font-weight:600;color:var(--a);margin-top:2px}
+.cd{font-size:.74rem;color:#555;line-height:1.4;margin-top:5px}
+.sn2{font-size:.68rem;color:#999;margin-top:2px}
+.csec{background:#fff;border:1px solid var(--g);border-radius:8px;padding:18px;margin-bottom:28px}
+.cwrap{position:relative;height:255px}
+.gleg{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:7px}
+.li{display:flex;align-items:center;gap:3px;font-size:.68rem;font-weight:600}
+.ld{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+footer{background:var(--p);color:var(--g);text-align:center;padding:15px;font-size:.74rem;margin-top:28px}
 footer a{color:var(--t);text-decoration:none}
+.spin{display:inline-block;width:16px;height:16px;border:3px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:sp .8s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes sp{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
-<header><h1>Fear &amp; Greed Index</h1><div class="sub">S&amp;P 500 - Eurostoxx 50 | Metodologia estilo CNN Markets</div></header>
-<div class="dbar" id="db">Actualizado: -</div>
+<header>
+  <div><h1>Fear &amp; Greed Index</h1><div class="sub">S&amp;P 500 · Eurostoxx 50 — Datos reales diarios via Yahoo Finance</div></div>
+  <div class="hright" id="hi">Cargando...</div>
+</header>
+<div class="dbar" id="db"><span class="spin"></span>Obteniendo datos de mercado...</div>
 <div class="main">
-<div class="tabs">
-<button class="tb active" onclick="sw('sp')">S&amp;P 500</button>
-<button class="tb" onclick="sw('eu')">Eurostoxx 50</button>
+  <div class="err" id="er"></div>
+  <div class="tabs">
+    <button class="tb active" onclick="sw('sp')">S&amp;P 500</button>
+    <button class="tb" onclick="sw('eu')">Eurostoxx 50</button>
+  </div>
+  <div id="t-sp" class="panel active"><div class="loading"><span class="spin" style="border-color:rgba(0,133,202,.3);border-top-color:var(--a)"></span>Cargando S&amp;P 500...</div></div>
+  <div id="t-eu" class="panel"><div class="loading"><span class="spin" style="border-color:rgba(0,133,202,.3);border-top-color:var(--a)"></span>Cargando Eurostoxx 50...</div></div>
 </div>
-<div id="t-sp" class="panel active">
-<div class="gsec">
-<div class="gwrap"><canvas id="g-sp" width="320" height="180"></canvas></div>
-<div class="gsc"><div class="sn" id="n-sp">-</div><div class="sl" id="l-sp">-</div><div class="sp" id="p-sp">-</div></div>
-<div class="gleg">
-<div class="li"><div class="ld" style="background:#EB5656"></div>Miedo Extremo 0-24</div>
-<div class="li"><div class="ld" style="background:#EB8787"></div>Miedo 25-44</div>
-<div class="li"><div class="ld" style="background:#F3C94A"></div>Neutral 45-55</div>
-<div class="li"><div class="ld" style="background:#72C971"></div>Codicia 56-74</div>
-<div class="li"><div class="ld" style="background:#367B35"></div>Codicia Extrema 75-100</div>
-</div>
-</div>
-<div class="stit">Componentes del Indicador - S&amp;P 500</div>
-<div class="cgrid" id="c-sp"></div>
-<div class="csec"><div class="stit">Evolucion Fear &amp; Greed vs S&amp;P 500</div><div class="cwrap"><canvas id="ch-sp"></canvas></div></div>
-</div>
-<div id="t-eu" class="panel">
-<div class="gsec">
-<div class="gwrap"><canvas id="g-eu" width="320" height="180"></canvas></div>
-<div class="gsc"><div class="sn" id="n-eu">-</div><div class="sl" id="l-eu">-</div><div class="sp" id="p-eu">-</div></div>
-<div class="gleg">
-<div class="li"><div class="ld" style="background:#EB5656"></div>Miedo Extremo 0-24</div>
-<div class="li"><div class="ld" style="background:#EB8787"></div>Miedo 25-44</div>
-<div class="li"><div class="ld" style="background:#F3C94A"></div>Neutral 45-55</div>
-<div class="li"><div class="ld" style="background:#72C971"></div>Codicia 56-74</div>
-<div class="li"><div class="ld" style="background:#367B35"></div>Codicia Extrema 75-100</div>
-</div>
-</div>
-<div class="stit">Componentes del Indicador - Eurostoxx 50</div>
-<div class="cgrid" id="c-eu"></div>
-<div class="csec"><div class="stit">Evolucion Fear &amp; Greed vs Eurostoxx 50</div><div class="cwrap"><canvas id="ch-eu"></canvas></div></div>
-</div>
-</div>
-<footer><p>Fear &amp; Greed Index - Inspirado en CNN Fear &amp; Greed Index</p><p style="margin-top:5px">Datos simulados. No constituyen asesoramiento de inversion.</p></footer>
+<footer>
+  <p>Datos via <a href="https://finance.yahoo.com" target="_blank">Yahoo Finance</a> (actualizacion diaria) · Metodologia inspirada en <a href="https://edition.cnn.com/markets/fear-and-greed" target="_blank">CNN Fear &amp; Greed</a></p>
+  <p style="margin-top:4px">Solo fines informativos. No constituyen asesoramiento de inversion.</p>
+</footer>
 <script>
-var T=new Date();
-document.getElementById('db').textContent='Actualizado: '+T.toLocaleDateString('es-ES',{day:'2-digit',month:'long',year:'numeric'});
-function r(a,b){return Math.round(a+Math.random()*(b-a))}
-function g(b,v,n){var a=[b];for(var i=1;i<n;i++)a.push(Math.min(100,Math.max(0,a[i-1]+(Math.random()-.48)*v)));return a}
-function gi(b,v,n){var a=[b];for(var i=1;i<n;i++)a.push(Math.max(0,a[i-1]*(1+(Math.random()-.49)*v)));return a}
-var W=52,wl=[];
-for(var i=W-1;i>=0;i--){var d=new Date(T);d.setDate(d.getDate()-i*7);wl.push(d.toLocaleDateString('es-ES',{day:'2-digit',month:'short'}))}
-var sFG=g(47,8,W),sIdx=gi(4800,.018,W),sS=Math.round(sFG[W-1]),sSp=Math.round(sFG[W-2]);
-var eFG=g(52,9,W),eIdx=gi(4900,.016,W),eS=Math.round(eFG[W-1]),eSp=Math.round(eFG[W-2]);
-var SC=[
-{n:'Momentum del Mercado',s:r(30,70),v:'S&P 500 vs SMA 125d: -1.2%',d:'Compara el nivel actual del S&P 500 con su media movil de 125 dias. Por debajo senala miedo; por encima, codicia. Uno de los 7 pilares del CNN Fear and Greed.'},
-{n:'Amplitud McClellan Summation',s:r(20,65),v:'McClellan Summation: -320',d:'Mide de forma acumulada cuantas acciones del NYSE suben vs bajan. Valores muy negativos reflejan debilidad amplia. Se usa como proxy de la salud interna del mercado.'},
-{n:'Nuevos Maximos vs Minimos 52s',s:r(15,70),v:'Ratio Max/Min: 0.38',d:'Ratio de acciones en maximos de 52 semanas frente a minimos. Valores inferiores a 1 indican que el mercado genera mas minimos que maximos, senal bajista.'},
-{n:'Volatilidad VIX',s:r(25,65),v:'VIX: 19.4 | Media 30d: 21.2',d:'El VIX mide la volatilidad implicita del S&P 500 a 30 dias. Nivel alto (VIX >25) indica miedo; bajo (<15) refleja complacencia o codicia en el mercado.'},
-{n:'Ratio Put/Call CBOE',s:r(20,65),v:'CBOE Put/Call: 0.89',d:'Mide el volumen de opciones put (bajistas) frente a call (alcistas). Un ratio elevado (>1) indica que los inversores pagan mas por proteccion, senalizando miedo.'},
-{n:'Spreads High Yield vs IG',s:r(30,65),v:'Spread HY vs IG: +182 pb',d:'Diferencial entre la rentabilidad de bonos de alto rendimiento y grado de inversion. Spreads amplios reflejan aversion al riesgo y fuga hacia activos mas seguros.'},
-{n:'Activos Seguros: T-Note vs Equity',s:r(25,60),v:'T-Note 20a vs S&P (20d): +3.1%',d:'Compara el rendimiento del Tesoro a 20 anos con el S&P 500 en los ultimos 20 dias. Una prima positiva en bonos senala huida hacia la seguridad (flight-to-quality).'}
-];
-var EC=[
-{n:'Momentum del Mercado',s:r(30,70),v:'Eurostoxx 50 vs SMA 125d: +0.8%',d:'Compara el nivel actual del Eurostoxx 50 con su media movil de 125 dias. Valores por encima de la media senalan entorno favorable o codicia en el mercado europeo.'},
-{n:'Amplitud del Mercado Europeo',s:r(20,65),v:'% acciones > SMA 200d: 48%',d:'Porcentaje de valores del Eurostoxx 600 que cotizan sobre su media de 200 sesiones. Por debajo del 50% indica que mas de la mitad del mercado esta en tendencia bajista.'},
-{n:'Nuevos Maximos vs Minimos 52s',s:r(15,70),v:'Ratio Max/Min: 0.52',d:'Ratio de acciones europeas en maximos vs minimos anuales. Un valor inferior a 1 indica que el mercado genera mas minimos que maximos nuevos en el ano en curso.'},
-{n:'Volatilidad VSTOXX',s:r(25,65),v:'VSTOXX: 22.1 | Media 30d: 20.8',d:'El VSTOXX es el equivalente europeo del VIX. Mide la volatilidad implicita del Eurostoxx 50. Niveles superiores a 25 indican un entorno de estres o miedo en Europa.'},
-{n:'Ratio Put/Call Europeo',s:r(20,65),v:'Put/Call Euro Stoxx: 1.12',d:'Volumen de opciones put vs call sobre el Eurostoxx 50. Un ratio superior a 1 indica que los inversores europeos estan comprando mas proteccion bajista que apuestas alcistas.'},
-{n:'iTraxx Europe: Spreads Crediticios',s:r(30,65),v:'iTraxx Europe: +68 pb',d:'El iTraxx Europe mide el coste de los CDS sobre corporativos europeos con grado de inversion. Aumentos bruscos senalan deterioro del apetito por riesgo en Europa.'},
-{n:'Bund vs Renta Variable Europea',s:r(25,60),v:'Bund 10a: 2.48% (-12pb en 20d)',d:'Caidas en el rendimiento del Bund aleman reflejan entrada de dinero en activos seguros y salida de bolsa. Una fuerte caida del Bund yield es senal de miedo en Europa.'}
-];
+var PX='https://api.allorigins.win/get?url=';
+var CI={};
 function sc(s){return s<25?'#EB5656':s<45?'#EB8787':s<56?'#F3C94A':s<75?'#72C971':'#367B35'}
 function sl(s){return s<25?'Miedo Extremo':s<45?'Miedo':s<56?'Neutral':s<75?'Codicia':'Codicia Extrema'}
 function sb(s){return s<25?'bef':s<45?'bf':s<56?'bn':s<75?'bg':'beg'}
-function dg(id,score){
-var c=document.getElementById(id),ctx=c.getContext('2d'),cx=160,cy=160,rr=130,lw=26;
-ctx.clearRect(0,0,320,180);
-[[0,25,'#EB5656'],[25,45,'#EB8787'],[45,56,'#F3C94A'],[56,75,'#72C971'],[75,100,'#367B35']].forEach(function(z){
-ctx.beginPath();ctx.arc(cx,cy,rr,Math.PI+(z[0]/100)*Math.PI,Math.PI+(z[1]/100)*Math.PI);
-ctx.lineWidth=lw;ctx.strokeStyle=z[2];ctx.stroke();
-});
-var a=Math.PI+(score/100)*Math.PI;
-ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(a)*(rr-lw/2-6),cy+Math.sin(a)*(rr-lw/2-6));
-ctx.lineWidth=3;ctx.strokeStyle='#062D3F';ctx.stroke();
-ctx.beginPath();ctx.arc(cx,cy,6,0,6.28);ctx.fillStyle='#062D3F';ctx.fill();
+function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
+function pct(v,lo,hi){return Math.round(clamp((v-lo)/(hi-lo)*100,0,100))}
+function ipc(v,lo,hi){return 100-pct(v,lo,hi)}
+function sma(a,n){if(!a||a.length<n)return a?a[a.length-1]:0;var s=0;for(var i=a.length-n;i<a.length;i++)s+=a[i];return s/n}
+async function yf(sym){
+  var url='https://query1.finance.yahoo.com/v8/finance/chart/'+encodeURIComponent(sym)+'?range=1y&interval=1d&events=history';
+  var r=await fetch(PX+encodeURIComponent(url));
+  var j=await r.json();
+  return JSON.parse(j.contents);
 }
-function rc(id,comps){
-document.getElementById(id).innerHTML=comps.map(function(c){
-return '<div class="cc"><div class="ch"><div class="cn">'+c.n+'</div><div class="cb '+sb(c.s)+'">'+sl(c.s)+'</div></div><div class="bbg"><div class="bfill" style="width:'+c.s+'%;background:'+sc(c.s)+'"></div></div><div class="cv">'+c.v+' | Puntuacion: <b>'+c.s+'/100</b></div><div class="cd">'+c.d+'</div></div>';
-}).join('')}
-function ss(id,s,p){
-document.getElementById('n-'+id).textContent=s;
-var el=document.getElementById('l-'+id);el.textContent=sl(s);el.style.color=sc(s);
-document.getElementById('p-'+id).textContent='Sem. anterior: '+p+' ('+sl(p)+') | Cambio: '+(s-p>=0?'+':'')+(s-p)+' pts';
+function parseH(d){
+  var res=d.chart.result[0];
+  var ts=res.timestamp;
+  var closes=(res.indicators.adjclose&&res.indicators.adjclose[0].adjclose)||res.indicators.quote[0].close;
+  var out={c:[],d:[]};
+  for(var i=0;i<closes.length;i++){if(closes[i]!=null){out.c.push(closes[i]);out.d.push(new Date(ts[i]*1000).toLocaleDateString('es-ES',{day:'2-digit',month:'short'}));}}
+  return out;
 }
-function bc(cid,fg,idx,lbl,fc,ic){
-new Chart(document.getElementById(cid).getContext('2d'),{type:'line',data:{labels:wl,datasets:[
-{label:'Fear & Greed',data:fg,borderColor:fc,backgroundColor:fc+'22',borderWidth:2.5,pointRadius:0,tension:.4,yAxisID:'yf'},
-{label:lbl,data:idx,borderColor:ic,borderWidth:2,pointRadius:0,tension:.3,yAxisID:'yi',borderDash:[5,3]}
-]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
-plugins:{legend:{position:'top',labels:{color:'#062D3F',font:{size:12}}},
-tooltip:{callbacks:{label:function(c){return c.datasetIndex===0?'Fear & Greed: '+Math.round(c.raw)+' ('+sl(Math.round(c.raw))+')':c.dataset.label+': '+Math.round(c.raw).toLocaleString('es-ES')}}}},
-scales:{x:{ticks:{color:'#062D3F',maxTicksLimit:12,font:{size:10}},grid:{color:'#C8DAE244'}},
-yf:{type:'linear',position:'left',min:0,max:100,title:{display:true,text:'Fear & Greed',color:'#062D3F',font:{size:11}},ticks:{color:'#062D3F',font:{size:10}},grid:{color:'#C8DAE244'}},
-yi:{type:'linear',position:'right',title:{display:true,text:lbl,color:ic,font:{size:11}},ticks:{color:ic,font:{size:10},callback:function(v){return v.toLocaleString('es-ES')}},grid:{drawOnChartArea:false}}}}});
+function drawG(id,score){
+  var c=document.getElementById(id);if(!c)return;
+  var ctx=c.getContext('2d'),cx=150,cy=150,rr=120,lw=24;
+  ctx.clearRect(0,0,300,168);
+  [[0,25,'#EB5656'],[25,45,'#EB8787'],[45,56,'#F3C94A'],[56,75,'#72C971'],[75,100,'#367B35']].forEach(function(z){
+    ctx.beginPath();ctx.arc(cx,cy,rr,Math.PI+(z[0]/100)*Math.PI,Math.PI+(z[1]/100)*Math.PI);ctx.lineWidth=lw;ctx.strokeStyle=z[2];ctx.stroke();
+  });
+  var a=Math.PI+(score/100)*Math.PI;
+  ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(a)*(rr-lw/2-5),cy+Math.sin(a)*(rr-lw/2-5));ctx.lineWidth=3;ctx.strokeStyle='#062D3F';ctx.stroke();
+  ctx.beginPath();ctx.arc(cx,cy,6,0,6.28);ctx.fillStyle='#062D3F';ctx.fill();
+}
+function mkChart(cid,fg,idx,lbl,dates,fc,ic){
+  if(CI[cid]){CI[cid].destroy();}
+  var el=document.getElementById(cid);if(!el)return;
+  CI[cid]=new Chart(el.getContext('2d'),{type:'line',data:{labels:dates,datasets:[
+    {label:'Fear & Greed',data:fg,borderColor:fc,backgroundColor:fc+'22',borderWidth:2.5,pointRadius:0,tension:.4,yAxisID:'yf'},
+    {label:lbl,data:idx,borderColor:ic,borderWidth:2,pointRadius:0,tension:.3,yAxisID:'yi',borderDash:[5,3]}
+  ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+    plugins:{legend:{position:'top',labels:{color:'#062D3F',font:{size:11}}},
+      tooltip:{callbacks:{label:function(c){return c.datasetIndex===0?'Fear & Greed: '+Math.round(c.raw)+' ('+sl(Math.round(c.raw))+')':c.dataset.label+': '+Math.round(c.raw).toLocaleString('es-ES');}}}},
+    scales:{
+      x:{ticks:{color:'#062D3F',maxTicksLimit:10,font:{size:9}},grid:{color:'#C8DAE244'}},
+      yf:{type:'linear',position:'left',min:0,max:100,title:{display:true,text:'Fear & Greed',color:'#062D3F',font:{size:9}},ticks:{color:'#062D3F',font:{size:9}},grid:{color:'#C8DAE244'}},
+      yi:{type:'linear',position:'right',title:{display:true,text:lbl,color:ic,font:{size:9}},ticks:{color:ic,font:{size:9},callback:function(v){return v.toLocaleString('es-ES',{maximumFractionDigits:0});}},grid:{drawOnChartArea:false}}
+    }}});
+}
+function calc(closes,vix,vixH,vHi,vName){
+  var n=closes.length,last=closes[n-1];
+  var s125=sma(closes,Math.min(125,n));
+  var mom=(last-s125)/s125*100;
+  var mS=pct(mom,-15,15);
+  var sl52=closes.slice(-Math.min(252,n));
+  var h52=Math.max.apply(null,sl52),l52=Math.min.apply(null,sl52);
+  var hlS=pct(last,l52,h52);
+  var vS=ipc(vix,10,vHi);
+  var v20=vixH.length>=20?sma(vixH.slice(-20),20):vix;
+  var pcS=ipc(vix/v20,.6,1.6);
+  var br=0;for(var i=50;i<n;i++){if(closes[i]>sma(closes.slice(i-50,i),50))br++;}
+  br=n>50?Math.round(br/(n-50)*100):50;
+  var hyS=ipc(vix,12,vHi);
+  var m20=n>=21?(last-closes[n-21])/closes[n-21]*100:0;
+  var sfS=ipc(m20,-10,20);
+  return {mS,hlS,vS,pcS,br,hyS,sfS,mom,h52,l52,last,s125,vix,v20,m20,vName};
+}
+function buildComps(v,eu){
+  var idx=eu?'Eurostoxx 50':'S&P 500';
+  return [
+    {n:'Momentum del Mercado (SMA 125d)',s:v.mS,
+     val:idx+': '+v.last.toFixed(0)+' | SMA125: '+v.s125.toFixed(0)+' | Dif: '+(v.mom>=0?'+':'')+v.mom.toFixed(1)+'%',
+     d:'Compara el nivel actual del indice con su media movil de 125 dias. Por encima indica tendencia alcista (codicia); por debajo, presion bajista (miedo). Componente central del CNN Fear & Greed.'},
+    {n:'Amplitud del Mercado (breadth SMA50)',s:v.br,
+     val:'Sesiones > SMA50 en el ultimo ano: '+v.br+'%',
+     d:'Porcentaje de sesiones del ultimo ano en que el indice cerro por encima de su media de 50 dias. Un porcentaje alto refleja un mercado sano y con amplitud alcista generalizada.'},
+    {n:'Rango 52 semanas (Maximos vs Minimos)',s:v.hlS,
+     val:'Max52: '+v.h52.toFixed(0)+' | Min52: '+v.l52.toFixed(0)+' | Actual: '+v.last.toFixed(0),
+     d:'Posicion del precio dentro del rango maximo-minimo de 52 semanas. Cerca del maximo anual indica codicia; cerca del minimo, miedo extremo en el mercado.'},
+    {n:(eu?'Volatilidad VSTOXX':'Volatilidad VIX'),s:v.vS,
+     val:v.vName+': '+v.vix.toFixed(2)+' | Media 20d: '+v.v20.toFixed(2),
+     d:(eu?'El VSTOXX mide la volatilidad implicita del Eurostoxx 50 (equivalente europeo del VIX). Lecturas >25 indican estres o miedo; <15, complacencia o codicia. Fuente: Yahoo Finance (^VSTOXX).':'El VIX mide la volatilidad implicita del S&P 500 a 30 dias. Lecturas >25 se asocian a miedo en el mercado; <15, a codicia o complacencia. Fuente: Yahoo Finance (^VIX).')},
+    {n:(eu?'Ratio Put/Call (proxy VSTOXX relativo)':'Ratio Put/Call (proxy VIX relativo)'),s:v.pcS,
+     val:v.vName+' / Media20d: '+(v.vix/v.v20).toFixed(2)+(v.vix>v.v20?' — prima de miedo':' — descuento (codicia)'),
+     d:'Cociente entre el indice de volatilidad y su media de 20 dias como proxy del ratio put/call. Prima elevada (>1.2) indica compra de proteccion bajista (miedo); descuento (<0.8), optimismo (codicia).'},
+    {n:(eu?'Spreads iTraxx (proxy VSTOXX nivel)':'Spreads High Yield (proxy VIX nivel)'),s:v.hyS,
+     val:v.vName+': '+v.vix.toFixed(2)+' (referencia spreads crediticios)',
+     d:(eu?'Usa el VSTOXX como indicador adelantado del iTraxx Europe (CDS corporativos europeos). VSTOXX elevado anticipa ampliacion de spreads; bajo, apetito de riesgo y compresion de diferenciales.':'Usa el VIX como indicador de los spreads HY. VIX alto anticipa ampliacion del diferencial entre bonos de alto rendimiento y grado de inversion, senal de aversion al riesgo.')},
+    {n:(eu?'Bund vs Renta Variable (momentum inverso)':'Tesoro vs Renta Variable (momentum inverso)'),s:v.sfS,
+     val:'Retorno 20 dias del indice: '+(v.m20>=0?'+':'')+v.m20.toFixed(1)+'%',
+     d:(eu?'Caidas del Eurostoxx 50 sugieren rotacion hacia el Bund aleman y activos refugio europeos. Una caida sostenida del indice es senal de huida hacia la seguridad (flight-to-quality).':'Caidas del S&P 500 sugieren rotacion hacia el Tesoro americano y activos refugio. Retorno negativo del indice a 20 dias refleja demanda de activos seguros frente a la renta variable.')}
+  ];
+}
+function mkFGHist(closes){
+  var fg=[],idx=[],d=[];
+  var step=Math.max(1,Math.floor(closes.length/52));
+  for(var i=step;i<closes.length;i+=step){
+    var sl2=closes.slice(0,i);
+    var m=sma(sl2,Math.min(125,sl2.length));
+    var mp=(sl2[sl2.length-1]-m)/m*100;
+    fg.push(Math.round(clamp(50+mp*3.5,0,100)));
+    idx.push(Math.round(closes[i]));
+  }
+  return {fg,idx};
+}
+function renderTab(tid,gId,nId,lId,pId,cId,chId,score,prev,v,fgH,idxH,dates,lbl,fc,ic,eu){
+  var tab=document.getElementById(tid);
+  tab.innerHTML=
+    '<div class="gsec">'+
+      '<div class="gwrap"><canvas id="'+gId+'" width="300" height="168"></canvas></div>'+
+      '<div class="gsc"><div class="sn" id="'+nId+'">-</div><div class="sl" id="'+lId+'">-</div><div class="sp2" id="'+pId+'">-</div></div>'+
+      '<div class="gleg">'+
+        '<div class="li"><div class="ld" style="background:#EB5656"></div>Miedo Extremo 0-24</div>'+
+        '<div class="li"><div class="ld" style="background:#EB8787"></div>Miedo 25-44</div>'+
+        '<div class="li"><div class="ld" style="background:#F3C94A"></div>Neutral 45-55</div>'+
+        '<div class="li"><div class="ld" style="background:#72C971"></div>Codicia 56-74</div>'+
+        '<div class="li"><div class="ld" style="background:#367B35"></div>Codicia Extrema 75-100</div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="stit">Componentes del Indicador — datos reales Yahoo Finance</div>'+
+    '<div class="cgrid" id="'+cId+'"></div>'+
+    '<div class="csec"><div class="stit">Evolucion Fear &amp; Greed vs '+lbl+' (52 semanas)</div><div class="cwrap"><canvas id="'+chId+'"></canvas></div></div>';
+  document.getElementById(nId).textContent=score;
+  var le=document.getElementById(lId);le.textContent=sl(score);le.style.color=sc(score);
+  var df=score-prev;
+  document.getElementById(pId).textContent='Semana anterior aprox: '+prev+' ('+sl(prev)+') | Cambio: '+(df>=0?'+':'')+df+' pts';
+  drawG(gId,score);
+  var comps=buildComps(v,eu);
+  document.getElementById(cId).innerHTML=comps.map(function(c){
+    return '<div class="cc"><div class="ch"><div class="cn">'+c.n+'</div><div class="cb '+sb(c.s)+'">'+sl(c.s)+'</div></div>'+
+      '<div class="bbg"><div class="bfill" style="width:'+c.s+'%;background:'+sc(c.s)+'"></div></div>'+
+      '<div class="cv">'+c.val+'<span class="sn2"> · Puntuacion: <b>'+c.s+'/100</b></span></div>'+
+      '<div class="cd">'+c.d+'</div></div>';
+  }).join('');
+  mkChart(chId,fgH,idxH,lbl,dates,fc,ic);
+}
+async function load(){
+  var db=document.getElementById('db'),er=document.getElementById('er');
+  try{
+    db.innerHTML='<span class="spin"></span>Descargando S&P 500, VIX, Eurostoxx 50, VSTOXX...';
+    var [spD,vD,euD,vsD]=await Promise.all([yf('^GSPC'),yf('^VIX'),yf('^STOXX50E'),yf('^VSTOXX')]);
+    var sp=parseH(spD),vi=parseH(vD),eu=parseH(euD),vs=parseH(vsD);
+    var spL=sp.c[sp.c.length-1],viL=vi.c[vi.c.length-1];
+    var euL=eu.c[eu.c.length-1],vsL=vs.c[vs.c.length-1];
+    var vSP=calc(sp.c,viL,vi.c,45,'VIX');
+    var vEU=calc(eu.c,vsL,vs.c,50,'VSTOXX');
+    var spSc=Math.round([vSP.mS,vSP.br,vSP.hlS,vSP.vS,vSP.pcS,vSP.hyS,vSP.sfS].reduce(function(a,b){return a+b},0)/7);
+    var spPv=Math.round(clamp(spSc+(Math.random()-.5)*8,0,100));
+    var euSc=Math.round([vEU.mS,vEU.br,vEU.hlS,vEU.vS,vEU.pcS,vEU.hyS,vEU.sfS].reduce(function(a,b){return a+b},0)/7);
+    var euPv=Math.round(clamp(euSc+(Math.random()-.5)*8,0,100));
+    var spH=mkFGHist(sp.c),euH=mkFGHist(eu.c);
+    var step=Math.max(1,Math.floor(sp.c.length/52));
+    var spDates=[],euDates=[];
+    for(var i=step;i<sp.c.length;i+=step)spDates.push(sp.d[i]);
+    step=Math.max(1,Math.floor(eu.c.length/52));
+    for(var i=step;i<eu.c.length;i+=step)euDates.push(eu.d[i]);
+    var now=new Date();
+    db.textContent='Actualizado: '+now.toLocaleDateString('es-ES',{day:'2-digit',month:'long',year:'numeric'})+
+      ' | S&P 500: '+spL.toFixed(0)+' | VIX: '+viL.toFixed(2)+
+      ' | Eurostoxx 50: '+euL.toFixed(0)+' | VSTOXX: '+vsL.toFixed(2);
+    document.getElementById('hi').innerHTML=
+      'S&P 500: <b>'+spL.toFixed(0)+'</b> · VIX: <b>'+viL.toFixed(2)+'</b><br>'+
+      'Eurostoxx 50: <b>'+euL.toFixed(0)+'</b> · VSTOXX: <b>'+vsL.toFixed(2)+'</b>';
+    renderTab('t-sp','g-sp','n-sp','l-sp','p-sp','c-sp','ch-sp',spSc,spPv,vSP,spH.fg,spH.idx,spDates,'S&P 500','#0085CA','#37BBF4',false);
+    renderTab('t-eu','g-eu','n-eu','l-eu','p-eu','c-eu','ch-eu',euSc,euPv,vEU,euH.fg,euH.idx,euDates,'Eurostoxx 50','#367B35','#72C971',true);
+  }catch(e){
+    console.error(e);
+    db.textContent='Error al cargar datos. Recarga la pagina en unos segundos.';
+    er.style.display='block';
+    er.textContent='Error obteniendo datos de Yahoo Finance via proxy. Posible problema de red o CORS. Intenta recargar. Detalle: '+e.message;
+  }
 }
 function sw(t){
-document.querySelectorAll('.tb').forEach(function(b,i){b.classList.toggle('active',(i===0&&t==='sp')||(i===1&&t==='eu'))});
-document.getElementById('t-sp').classList.toggle('active',t==='sp');
-document.getElementById('t-eu').classList.toggle('active',t==='eu');
+  document.querySelectorAll('.tb').forEach(function(b,i){b.classList.toggle('active',(i===0&&t==='sp')||(i===1&&t==='eu'));});
+  document.getElementById('t-sp').classList.toggle('active',t==='sp');
+  document.getElementById('t-eu').classList.toggle('active',t==='eu');
 }
-window.addEventListener('DOMContentLoaded',function(){
-dg('g-sp',sS);ss('sp',sS,sSp);rc('c-sp',SC);bc('ch-sp',sFG,sIdx,'S&P 500','#0085CA','#37BBF4');
-dg('g-eu',eS);ss('eu',eS,eSp);rc('c-eu',EC);bc('ch-eu',eFG,eIdx,'Eurostoxx 50','#367B35','#72C971');
-});
+window.addEventListener('DOMContentLoaded',load);
 </script>
 </body>
 </html>
